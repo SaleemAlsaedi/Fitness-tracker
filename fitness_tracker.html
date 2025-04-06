@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .form-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            color: #333;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            transition: border-color 0.2s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #00c4b4;
+            outline: none;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .input-group input, .input-group select {
+            flex: 1;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            background: #00c4b4;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            flex: 1;
+        }
+        button:hover {
+            background: #00b3a4;
+        }
+        #cancelEditBtn {
+            background: #ccc;
+        }
+        #cancelEditBtn:hover {
+            background: #bbb;
+        }
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .dashboard-item {
+            flex: 1;
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .dashboard-item p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .dashboard-item span {
+            display: block;
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background: #f5f7fa;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        td {
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr {
+            transition: background 0.2s ease;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: #00c4b4;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px 10px;
+            transition: color 0.2s ease;
+        }
+        .action-btn:hover {
+            color: #00b3a4;
+        }
+        .delete-btn {
+            color: #ff4444;
+        }
+        .delete-btn:hover {
+            color: #cc0000;
+        }
+        .graph-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .graph-card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin: 0 0 10px;
+        }
+        .countdown-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        .countdown-card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            margin: 0 0 10px;
+        }
+        .countdown-card p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .countdown-container {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .countdown-item {
+            flex: 1;
+            text-align: center;
+        }
+        .countdown-item p {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        #cutCountdownCanvas, #weightCountdownCanvas {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fitness Tracker</h1>
+
+        <!-- Countdowns and Graphs (Moved Above) -->
+        <div class="countdown-card">
+            <h3>Progress Countdowns</h3>
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <p>Weeks Remaining (24-Week Cut)</p>
+                    <canvas id="cutCountdownCanvas" width="150" height="100"></canvas>
+                </div>
+                <div class="countdown-item">
+                    <p>Weight to Lose (to 82 kg)</p>
+                    <canvas id="weightCountdownCanvas" width="150" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphs -->
+        <div class="graph-card">
+            <h3>Daily Weight (kg)</h3>
+            <canvas id="weightChart"></canvas>
+        </div>
+        <div class="graph-card">
+            <h3>Daily Calories (kcal)</h3>
+            <canvas id="caloriesChart"></canvas>
+        </div>
+        <div class="graph-card">
+            <h3>Avg Cardio Duration (min/week)</h3>
+            <canvas id="cardioChart"></canvas>
+        </div>
+        <div class="graph-card">
+            <h3>Avg Steps (per week)</h3>
+            <canvas id="stepsChart"></canvas>
+        </div>
+
+        <!-- Form Card -->
+        <div class="form-card">
+            <form id="fitnessForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <label>Date</label>
+                <input type="date" id="date" required>
+                <label>Weight (kg)</label>
+                <input type="number" step="0.1" id="weight" required>
+                <label>Key Lifts</label>
+                <div class="input-group">
+                    <div>
+                        <label>Exercise Type</label>
+                        <select id="liftType">
+                            <option value="Incline Chest Press">Incline Chest Press</option>
+                            <option value="Leg Extension">Leg Extension</option>
+                            <option value="Leg Press">Leg Press</option>
+                            <option value="Seated Row">Seated Row</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Weight (kg)</label>
+                        <input type="number" id="liftWeight">
+                    </div>
+                    <div>
+                        <label>Reps (Set 1)</label>
+                        <input type="number" id="liftReps1">
+                    </div>
+                    <div>
+                        <label>Reps (Set 2)</label>
+                        <input type="number" id="liftReps2">
+                    </div>
+                </div>
+                <label>Protein (g)</label>
+                <input type="number" id="protein" required oninput="calculateCalories()">
+                <label>Carbs (g)</label>
+                <input type="number" id="carbs" required oninput="calculateCalories()">
+                <label>Fats (g)</label>
+                <input type="number" id="fats" required oninput="calculateCalories()">
+                <label>Calories (kcal, auto-calculated)</label>
+                <input type="number" id="calories" readonly>
+                <label>Cardio Type</label>
+                <select id="cardioType">
+                    <option value="">None</option>
+                    <option value="Treadmill">Treadmill</option>
+                    <option value="Walking">Walking</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Stairs">Stairs</option>
+                    <option value="Others">Others</option>
+                </select>
+                <label>Cardio Duration (min)</label>
+                <input type="number" id="cardioDuration">
+                <label>Steps</label>
+                <input type="number" id="steps">
+                <label>Sleep (hrs)</label>
+                <input type="number" step="0.1" id="sleep">
+                <label>Hunger (1-10)</label>
+                <input type="number" min="1" max="10" id="hunger">
+                <label>Notes</label>
+                <textarea id="notes" rows="2"></textarea>
+                <div class="button-group">
+                    <button type="submit" id="submitBtn">Log Entry</button>
+                    <button type="button" id="cancelEditBtn" style="display: none;">Cancel Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <p>Total Entries</p>
+                <span id="entryCount">0</span>
+            </div>
+            <div class="dashboard-item">
+                <p>Avg Weight</p>
+                <span id="avgWeight">-</span> kg
+            </div>
+            <div class="dashboard-item">
+                <p>Avg Calories</p>
+                <span id="avgCalories">-</span> kcal
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Weight</th>
+                        <th>Lift Type</th>
+                        <th>Lift Wt</th>
+                        <th>Reps (S1/S2)</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                        <th>Carbs</th>
+                        <th>Fats</th>
+                        <th>Cardio</th>
+                        <th>Duration</th>
+                        <th>Steps</th>
+                        <th>Sleep</th>
+                        <th>Hunger</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="dataBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('fitnessForm');
+        const tableBody = document.getElementById('dataBody');
+        const entryCount = document.getElementById('entryCount');
+        const avgWeight = document.getElementById('avgWeight');
+        const avgCalories = document.getElementById('avgCalories');
+        const editIndexInput = document.getElementById('editIndex');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        let entries = JSON.parse(localStorage.getItem('fitnessEntries')) || [];
+
+        // Initialize Charts
+        const weightCtx = document.getElementById('weightChart').getContext('2d');
+        const caloriesCtx = document.getElementById('caloriesChart').getContext('2d');
+        const cardioCtx = document.getElementById('cardioChart').getContext('2d');
+        const stepsCtx = document.getElementById('stepsChart').getContext('2d');
+
+        const weightChart = new Chart(weightCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: [],
+                    borderColor: '#00c4b4',
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Weight (kg)' }, beginAtZero: false }
+                }
+            }
+        });
+
+        const caloriesChart = new Chart(caloriesCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Calories (kcal)',
+                    data: [],
+                    borderColor: '#00c4b4',
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Date' } },
+                    y: { title: { display: true, text: 'Calories (kcal)' }, beginAtZero: true }
+                }
+            }
+        });
+
+        const cardioChart = new Chart(cardioCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Avg Cardio (min)',
+                    data: [],
+                    borderColor: '#00c4b4',
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Week' } },
+                    y: { title: { display: true, text: 'Minutes' }, beginAtZero: true }
+                }
+            }
+        });
+
+        const stepsChart = new Chart(stepsCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Avg Steps',
+                    data: [],
+                    borderColor: '#00c4b4',
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'Week' } },
+                    y: { title: { display: true, text: 'Steps' }, beginAtZero: true }
+                }
+            }
+        });
+
+        // Load existing entries and initialize
+        entries.forEach((entry, index) => addRow(entry, index));
+        updateDashboard();
+        updateGraphs();
+        updateCountdowns();
+        calculateCalories(); // Initial call to set calories on page load
+
+        // Calculate calories automatically
+        function calculateCalories() {
+            const proteinInput = document.getElementById('protein');
+            const carbsInput = document.getElementById('carbs');
+            const fatsInput = document.getElementById('fats');
+            const caloriesInput = document.getElementById('calories');
+
+            const protein = parseFloat(proteinInput.value) || 0;
+            const carbs = parseFloat(carbsInput.value) || 0;
+            const fats = parseFloat(fatsInput.value) || 0;
+            const calories = (protein * 4) + (carbs * 4) + (fats * 9);
+            caloriesInput.value = Math.round(calories);
+        }
+
+        // Ensure calorie calculation on input
+        document.getElementById('protein').addEventListener('input', calculateCalories);
+        document.getElementById('carbs').addEventListener('input', calculateCalories);
+        document.getElementById('fats').addEventListener('input', calculateCalories);
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const editIndex = parseInt(editIndexInput.value);
+
+            const entry = {
+                date: document.getElementById('date').value,
+                weight: parseFloat(document.getElementById('weight').value),
+                liftType: document.getElementById('liftType').value,
+                liftWeight: parseFloat(document.getElementById('liftWeight').value) || 0,
+                liftReps1: parseInt(document.getElementById('liftReps1').value) || 0,
+                liftReps2: parseInt(document.getElementById('liftReps2').value) || 0,
+                calories: parseInt(document.getElementById('calories').value),
+                protein: parseInt(document.getElementById('protein').value),
+                carbs: parseInt(document.getElementById('carbs').value),
+                fats: parseInt(document.getElementById('fats').value),
+                cardioType: document.getElementById('cardioType').value,
+                cardioDuration: parseInt(document.getElementById('cardioDuration').value) || 0,
+                steps: parseInt(document.getElementById('steps').value) || 0,
+                sleep: parseFloat(document.getElementById('sleep').value) || 0,
+                hunger: parseInt(document.getElementById('hunger').value) || 0,
+                notes: document.getElementById('notes').value
+            };
+
+            if (editIndex === -1) {
+                entries.push(entry);
+            } else {
+                entries[editIndex] = entry;
+                editIndexInput.value = -1;
+                submitBtn.textContent = 'Log Entry';
+                cancelEditBtn.style.display = 'none';
+            }
+
+            localStorage.setItem('fitnessEntries', JSON.stringify(entries));
+            refreshTable();
+            updateDashboard();
+            updateGraphs();
+            updateCountdowns();
+            form.reset();
+            document.getElementById('calories').value = '';
+            calculateCalories(); // Reset calories after form submission
+        });
+
+        cancelEditBtn.addEventListener('click', function() {
+            editIndexInput.value = -1;
+            submitBtn.textContent = 'Log Entry';
+            cancelEditBtn.style.display = 'none';
+            form.reset();
+            document.getElementById('calories').value = '';
+            calculateCalories(); // Reset calories after canceling edit
+        });
+
+        function addRow(entry, index) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.date}</td>
+                <td>${entry.weight}</td>
+                <td>${entry.liftType || '-'}</td>
+                <td>${entry.liftWeight || '-'}</td>
+                <td>${entry.liftReps1}/${entry.liftReps2}</td>
+                <td>${entry.calories}</td>
+                <td>${entry.protein}</td>
+                <td>${entry.carbs}</td>
+                <td>${entry.fats}</td>
+                <td>${entry.cardioType || '-'}</td>
+                <td>${entry.cardioDuration || '-'}</td>
+                <td>${entry.steps || '-'}</td>
+                <td>${entry.sleep || '-'}</td>
+                <td>${entry.hunger || '-'}</td>
+                <td>${entry.notes || '-'}</td>
+                <td>
+                    <button class="action-btn edit-btn" data-index="${index}">Edit</button>
+                    <button class="action-btn delete-btn" data-index="${index}">Delete</button>
+                </td>
+            `;
+            tableBody.insertBefore(row, tableBody.firstChild); // Newest at top
+        }
+
+        function refreshTable() {
+            tableBody.innerHTML = '';
+            entries.forEach((entry, index) => addRow(entry, index));
+        }
+
+        tableBody.addEventListener('click', function(e) {
+            if (e.target.classList.contains('edit-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                const entry = entries[index];
+                document.getElementById('date').value = entry.date;
+                document.getElementById('weight').value = entry.weight;
+                document.getElementById('liftType').value = entry.liftType || '';
+                document.getElementById('liftWeight').value = entry.liftWeight || '';
+                document.getElementById('liftReps1').value = entry.liftReps1 || '';
+                document.getElementById('liftReps2').value = entry.liftReps2 || '';
+                document.getElementById('protein').value = entry.protein;
+                document.getElementById('carbs').value = entry.carbs;
+                document.getElementById('fats').value = entry.fats;
+                document.getElementById('calories').value = entry.calories;
+                document.getElementById('cardioType').value = entry.cardioType || '';
+                document.getElementById('cardioDuration').value = entry.cardioDuration || '';
+                document.getElementById('steps').value = entry.steps || '';
+                document.getElementById('sleep').value = entry.sleep || '';
+                document.getElementById('hunger').value = entry.hunger || '';
+                document.getElementById('notes').value = entry.notes || '';
+                editIndexInput.value = index;
+                submitBtn.textContent = 'Update Entry';
+                cancelEditBtn.style.display = 'block';
+                calculateCalories(); // Ensure calories are recalculated when editing
+            } else if (e.target.classList.contains('delete-btn')) {
+                const index = parseInt(e.target.dataset.index);
+                if (confirm('Are you sure you want to delete this entry?')) {
+                    entries.splice(index, 1);
+                    localStorage.setItem('fitnessEntries', JSON.stringify(entries));
+                    refreshTable();
+                    updateDashboard();
+                    updateGraphs();
+                    updateCountdowns();
+                }
+            }
+        });
+
+        function updateDashboard() {
+            entryCount.textContent = entries.length;
+            if (entries.length > 0) {
+                const totalWeight = entries.reduce((sum, e) => sum + e.weight, 0);
+                const totalCalories = entries.reduce((sum, e) => sum + e.calories, 0);
+                avgWeight.textContent = (totalWeight / entries.length).toFixed(1);
+                avgCalories.textContent = Math.round(totalCalories / entries.length);
+            } else {
+                avgWeight.textContent = '-';
+                avgCalories.textContent = '-';
+            }
+        }
+
+        function updateGraphs() {
+            // Daily Weight
+            const weightData = entries.map(e => ({ date: new Date(e.date), weight: e.weight }));
+            weightData.sort((a, b) => a.date - b.date);
+            weightChart.data.labels = weightData.map(e => e.date.toISOString().split('T')[0]);
+            weightChart.data.datasets[0].data = weightData.map(e => e.weight);
+            weightChart.update();
+
+            // Daily Calories
+            const caloriesData = entries.map(e => ({ date: new Date(e.date), calories: e.calories }));
+            caloriesData.sort((a, b) => a.date - b.date);
+            caloriesChart.data.labels = caloriesData.map(e => e.date.toISOString().split('T')[0]);
+            caloriesChart.data.datasets[0].data = caloriesData.map(e => e.calories);
+            caloriesChart.update();
+
+            // Weekly Cardio Duration and Steps
+            const weeklyData = {};
+            entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const weekStart = new Date(date);
+                weekStart.setDate(date.getDate() - date.getDay()); // Start of the week (Sunday)
+                const weekKey = weekStart.toISOString().split('T')[0];
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = { duration: [], steps: [] };
+                }
+                if (entry.cardioDuration > 0) weeklyData[weekKey].duration.push(entry.cardioDuration);
+                if (entry.steps > 0) weeklyData[weekKey].steps.push(entry.steps);
+            });
+
+            const weeks = Object.keys(weeklyData).sort();
+            const avgCardio = weeks.map(week => {
+                const durations = weeklyData[week].duration;
+                return durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+            });
+            const avgSteps = weeks.map(week => {
+                const steps = weeklyData[week].steps;
+                return steps.length ? steps.reduce((a, b) => a + b, 0) / steps.length : 0;
+            });
+
+            cardioChart.data.labels = weeks;
+            cardioChart.data.datasets[0].data = avgCardio;
+            cardioChart.update();
+
+            stepsChart.data.labels = weeks;
+            stepsChart.data.datasets[0].data = avgSteps;
+            stepsChart.update();
+        }
+
+        function drawStopwatch(ctx, width, height, offsetX, offsetY, color, text) {
+            ctx.clearRect(0, 0, width, height);
+            ctx.beginPath();
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = color;
+            ctx.fillStyle = '#fff';
+
+            // Draw the rounded rectangle
+            const rectX = 20 + offsetX;
+            const rectY = 15 + offsetY;
+            const rectWidth = 110;
+            const rectHeight = 70;
+            const radius = 35;
+
+            ctx.moveTo(rectX + radius, rectY);
+            ctx.lineTo(rectX + rectWidth - radius, rectY);
+            ctx.quadraticCurveTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + radius);
+            ctx.lineTo(rectX + rectWidth, rectY + rectHeight - radius);
+            ctx.quadraticCurveTo(rectX + rectWidth, rectY + rectHeight, rectX + rectWidth - radius, rectY + rectHeight);
+            ctx.lineTo(rectX + radius, rectY + rectHeight);
+            ctx.quadraticCurveTo(rectX, rectY + rectHeight, rectX, rectY + rectHeight - radius);
+            ctx.lineTo(rectX, rectY + radius);
+            ctx.quadraticCurveTo(rectX, rectY, rectX + radius, rectY);
+            ctx.closePath();
+
+            // Draw tick marks on the sides
+            const tickLength = 5;
+            const tickSpacing = 8;
+            for (let i = 0; i < 5; i++) {
+                // Left side
+                ctx.moveTo(rectX, rectY + radius + i * tickSpacing);
+                ctx.lineTo(rectX - tickLength, rectY + radius + i * tickSpacing);
+                // Right side
+                ctx.moveTo(rectX + rectWidth, rectY + radius + i * tickSpacing);
+                ctx.lineTo(rectX + rectWidth + tickLength, rectY + radius + i * tickSpacing);
+            }
+
+            // Draw the stopwatch top
+            ctx.moveTo(rectX + 30, rectY + offsetY);
+            ctx.lineTo(rectX + rectWidth - 30, rectY + offsetY);
+            ctx.stroke();
+
+            // Draw the stopwatch buttons
+            ctx.fillRect(rectX + 40 + offsetX, rectY - 8 + offsetY, 15, 8);
+            ctx.fillRect(rectX + 55 + offsetX, rectY - 15 + offsetY, 15, 8);
+            ctx.strokeRect(rectX + 40 + offsetX, rectY - 8 + offsetY, 15, 8);
+            ctx.strokeRect(rectX + 55 + offsetX, rectY - 15 + offsetY, 15, 8);
+
+            ctx.fill();
+            ctx.stroke();
+
+            // Draw the text
+            ctx.font = 'bold 30px sans-serif';
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, width / 2, height / 2 + 5);
+        }
+
+        function updateCountdowns() {
+            // 24-Week Countdown (starting April 6, 2025)
+            const startDate = new Date('2025-04-06');
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + (24 * 7)); // 24 weeks later
+            const today = new Date();
+            const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+            const weeksLeft = Math.floor(daysLeft / 7);
+
+            // Draw the duration countdown
+            const cutCanvas = document.getElementById('cutCountdownCanvas');
+            const cutCtx = cutCanvas.getContext('2d');
+            const cutWidth = cutCanvas.width;
+            const cutHeight = cutCanvas.height;
+
+            drawStopwatch(cutCtx, cutWidth, cutHeight, -2, -2, 'cyan', weeksLeft);
+            drawStopwatch(cutCtx, cutWidth, cutHeight, 2, 2, 'magenta', weeksLeft);
+            drawStopwatch(cutCtx, cutWidth, cutHeight, 0, 0, '#000', weeksLeft);
+
+            // Weight Loss Countdown (to 82 kg)
+            const weightCanvas = document.getElementById('weightCountdownCanvas');
+            const weightCtx = weightCanvas.getContext('2d');
+            const weightWidth = weightCanvas.width;
+            const weightHeight = weightCanvas.height;
+
+            let weightToLose = '-';
+            if (entries.length > 0) {
+                entries.sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date to get the latest
+                const latestEntry = entries[entries.length - 1];
+                const currentWeight = latestEntry.weight;
+                const targetWeight = 82;
+                weightToLose = Math.max(0, (currentWeight - targetWeight).toFixed(1));
+            }
+
+            drawStopwatch(weightCtx, weightWidth, weightHeight, -2, -2, 'cyan', weightToLose);
+            drawStopwatch(weightCtx, weightWidth, weightHeight, 2, 2, 'magenta', weightToLose);
+            drawStopwatch(weightCtx, weightWidth, weightHeight, 0, 0, '#000', weightToLose);
+        }
+    </script>
+</body>
+</html>
